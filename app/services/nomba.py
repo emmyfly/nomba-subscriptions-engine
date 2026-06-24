@@ -16,10 +16,13 @@ def get_nomba_token() -> str:
             "accountId": settings.NOMBA_ACCOUNT_ID,
         },
     )
-    response.raise_for_status()
+
+    if response.status_code != 200:
+        error_detail = response.text
+        raise Exception(f"Nomba auth failed ({response.status_code}): {error_detail}")
+
     data = response.json()
     return data["data"]["access_token"]
-
 
 def create_virtual_account(account_name: str, email: str) -> dict:
     token = get_nomba_token()
