@@ -4,7 +4,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.core.database import engine, Base
 from app.models.plan import Plan
 from app.models.subscriber import Subscriber
-from app.models.payment import Paymen
+from app.models.payment import Payment
+
+from app.routers import plans
 
 app = FastAPI(
      title="Nomba subscription Engine",
@@ -22,6 +24,7 @@ app.add_middleware(
 )
 
 Base.metadata.create_all(bind=engine)
+app.include_router(plans.router, prefix="/api/plans", tags=["Plans"])
 
 @app.get("/")
 def root():
