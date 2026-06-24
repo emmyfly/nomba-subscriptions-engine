@@ -7,14 +7,16 @@ from app.services.dunning import handle_failed_payment, handle_successful_paymen
 
 
 def process_payment_webhook(payload: dict, db: Session) -> str:
-    event_type = payload.get("event", "unknown")
+    event_type = payload.get("event_type", "unknown")
     data = payload.get("data", {})
 
-    account_number = data.get("accountNumber", "")
-    amount = data.get("amount", 0)
-    transaction_ref = data.get("transactionReference", "")
-    session_id = data.get("sessionId", "")
+    transaction = data.get("transaction", {})
+    order = data.get("order", {})
 
+    account_number = data.get("accountNumber", "")
+    amount = transaction.get("transactionAmount", 0)
+    transaction_ref = transaction.get("transactionId", "")
+    session_id = order.get("orderReference", "")
     subscriber = db.query(Subscriber).filter(
         Subscriber.nomba_account_number == account_number
     ).first()
