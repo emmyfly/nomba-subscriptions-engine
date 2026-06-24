@@ -11,8 +11,10 @@ router = APIRouter()
 
 
 @router.get("/", response_model=List[PaymentResponse])
-def get_payments(subscriber_id: int = None, limit: int = 50, db: Session = Depends(get_db)):
+def get_payments(tenant_id: int = None, subscriber_id: int = None, limit: int = 50, db: Session = Depends(get_db)):
     query = db.query(Payment)
+    if tenant_id:
+        query = query.filter(Payment.tenant_id == tenant_id)
     if subscriber_id:
         query = query.filter(Payment.subscriber_id == subscriber_id)
     payments = query.order_by(Payment.created_at.desc()).limit(limit).all()

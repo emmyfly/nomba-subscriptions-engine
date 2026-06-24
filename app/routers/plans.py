@@ -16,13 +16,12 @@ def get_plans(db: Session = Depends(get_db)):
     return plans
 
 
-@router.get("/{plan_id}", response_model=PlanResponse)
-def get_plan(plan_id: int, db: Session = Depends(get_db)):
-    plan = db.query(Plan).filter(Plan.id == plan_id).first()
-    if plan is None:
-        raise HTTPException(status_code=404, detail="Plan not found")
-    return plan
-
+@router.get("/", response_model=List[PlanResponse])
+def get_plans(tenant_id: int = None, db: Session = Depends(get_db)):
+    query = db.query(Plan)
+    if tenant_id:
+        query = query.filter(Plan.tenant_id == tenant_id)
+    return query.all()
 
 @router.post("/", response_model=PlanResponse, status_code=201)
 def create_plan(plan_data: PlanCreate, db: Session = Depends(get_db)):

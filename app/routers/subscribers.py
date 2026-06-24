@@ -18,12 +18,13 @@ router = APIRouter()
 
 
 @router.get("/", response_model=List[SubscriberResponse])
-def get_subscribers(status: str = None, db: Session = Depends(get_db)):
+def get_subscribers(tenant_id: int = None, status: str = None, db: Session = Depends(get_db)):
     query = db.query(Subscriber)
+    if tenant_id:
+        query = query.filter(Subscriber.tenant_id == tenant_id)
     if status:
         query = query.filter(Subscriber.status == status)
     return query.all()
-
 
 @router.get("/{subscriber_id}", response_model=SubscriberResponse)
 def get_subscriber(subscriber_id: int, db: Session = Depends(get_db)):
@@ -36,6 +37,7 @@ def get_subscriber(subscriber_id: int, db: Session = Depends(get_db)):
 def get_retry_queue(db: Session = Depends(get_db)):
     subscribers = get_subscribers_due_for_retry(db)
     return subscribers
+
 @router.get("/{subscriber_id}/proration-preview")
 def preview_proration(subscriber_id: int, new_plan_id: int, db: Session = Depends(get_db)):
     subscriber = db.query(Subscriber).filter(Subscriber.id == subscriber_id).first()
