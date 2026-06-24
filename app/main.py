@@ -9,6 +9,9 @@ from app.models.payment import Payment
 from app.routers import plans
 from app.routers import plans, subscribers, payments, webhooks
 
+from app.models.tenant import Tenant
+from app.routers import plans, subscribers, payments, webhooks, tenants
+
 
 app = FastAPI(
      title="Nomba subscription Engine",
@@ -27,6 +30,7 @@ app.add_middleware(
 
 Base.metadata.create_all(bind=engine)
 app.include_router(plans.router, prefix="/api/plans", tags=["Plans"])
+app.include_router(tenants.router, prefix="/api/tenants", tags=["Tenants"])
 
 app.include_router(subscribers.router, prefix="/api/subscribers", tags=["Subscribers"])
 app.include_router(payments.router, prefix="/api/payments", tags=["Payments"])

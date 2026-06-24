@@ -7,6 +7,7 @@ class Subscriber(Base):
     __tablename__ = "subscribers"
 
     id = Column(Integer, primary_key=True, index=True)
+    tenant_id = Column(Integer, ForeignKey("tenants.id"), nullable=False)
 
     name = Column(String, nullable=False)
     email = Column(String, nullable=False)

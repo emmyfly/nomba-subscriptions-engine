@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 
 class SubscriberCreate(BaseModel):
+    tenant_id: int
     name: str
     email: str
     phone: str = ""
@@ -19,6 +20,7 @@ class SubscriberUpdate(BaseModel):
 
 
 class SubscriberResponse(BaseModel):
+    tenant_id: int
     id: int
     name: str
     email: str

@@ -4,6 +4,7 @@ from pydantic import BaseModel
 
 
 class PlanCreate(BaseModel):
+    tenant_id: int
     name: str
     description: str = ""
     price: float
@@ -19,6 +20,7 @@ class PlanUpdate(BaseModel):
 
 
 class PlanResponse(BaseModel):
+    tenant_id: int
     id: int
     name: str
     description: str

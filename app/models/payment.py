@@ -7,6 +7,7 @@ class Payment(Base):
     __tablename__ = "payments"
 
     id = Column(Integer, primary_key=True, index=True)
+    tenant_id = Column(Integer, ForeignKey("tenants.id"), nullable=False)
 
     subscriber_id = Column(Integer, ForeignKey("subscribers.id"), nullable=False)
 
