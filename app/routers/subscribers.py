@@ -86,6 +86,7 @@ def create_subscriber(data: SubscriberCreate, db: Session = Depends(get_db)):
     next_billing = calculate_next_billing_date(plan.billing_cycle)
 
     new_subscriber = Subscriber(
+        tenant_id=data.tenant_id,
         name=data.name,
         email=data.email,
         phone=data.phone,
