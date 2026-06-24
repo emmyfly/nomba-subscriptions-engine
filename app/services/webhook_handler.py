@@ -3,6 +3,7 @@ from app.models.subscriber import Subscriber
 from app.models.payment import Payment
 from app.models.plan import Plan
 from app.services.billing import advance_billing_date
+from app.services.dunning import handle_failed_payment, handle_successful_payment
 
 
 def process_payment_webhook(payload: dict, db: Session) -> str:
@@ -23,6 +24,7 @@ def process_payment_webhook(payload: dict, db: Session) -> str:
 
     payment = Payment(
         subscriber_id=subscriber.id,
+        tenant_id=subscriber.tenant_id,
         amount=amount,
         status="success" if event_type == "payment_success" else "failed",
         event_type=event_type,
@@ -32,17 +34,15 @@ def process_payment_webhook(payload: dict, db: Session) -> str:
     db.add(payment)
 
     if event_type == "payment_success":
-        subscriber.status = "active"
+        result = handle_successful_payment(subscriber, db)
         plan = db.query(Plan).filter(Plan.id == subscriber.plan_id).first()
         if plan and subscriber.next_billing_date:
             subscriber.next_billing_date = advance_billing_date(
                 current_date=subscriber.next_billing_date,
                 billing_cycle=plan.billing_cycle,
             )
-        result = f"Payment of {amount} processed for {subscriber.name}"
     elif event_type == "payment_failed":
-        subscriber.status = "past_due"
-        result = f"Payment failed for {subscriber.name}"
+        result = handle_failed_payment(subscriber, db)
     else:
         result = f"Unknown event type: {event_type}"
 

@@ -23,6 +23,10 @@ class Subscriber(Base):
     amount = Column(Float, default=0.0)
     next_billing_date = Column(DateTime, nullable=True)
 
+    retry_count = Column(Integer, default=0)
+    max_retries = Column(Integer, default=3)
+    last_retry_at = Column(DateTime, nullable=True)
+
     created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
     updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc),
                         onupdate=lambda: datetime.now(timezone.utc))

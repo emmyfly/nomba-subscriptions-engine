@@ -1,7 +1,9 @@
 from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List 
+
+from app.services.dunning import get_subscribers_due_for_retry
 
 from app.core.database import get_db
 from app.models.subscriber import Subscriber
@@ -28,6 +30,11 @@ def get_subscriber(subscriber_id: int, db: Session = Depends(get_db)):
     if not subscriber:
         raise HTTPException(status_code=404, detail="Subscriber not found")
     return subscriber
+
+@router.get("/due-for-retry", response_model=List[SubscriberResponse])
+def get_retry_queue(db: Session = Depends(get_db)):
+    subscribers = get_subscribers_due_for_retry(db)
+    return subscribers
 
 
 @router.post("/", response_model=SubscriberResponse, status_code=201)
