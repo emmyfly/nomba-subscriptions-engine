@@ -2,6 +2,7 @@ from datetime import datetime, timezone, timedelta
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from typing import List 
+from app.services.billing import calculate_proration, get_days_remaining
 
 from app.services.dunning import get_subscribers_due_for_retry
 
@@ -35,6 +36,36 @@ def get_subscriber(subscriber_id: int, db: Session = Depends(get_db)):
 def get_retry_queue(db: Session = Depends(get_db)):
     subscribers = get_subscribers_due_for_retry(db)
     return subscribers
+@router.get("/{subscriber_id}/proration-preview")
+def preview_proration(subscriber_id: int, new_plan_id: int, db: Session = Depends(get_db)):
+    subscriber = db.query(Subscriber).filter(Subscriber.id == subscriber_id).first()
+    if not subscriber:
+        raise HTTPException(status_code=404, detail="Subscriber not found")
+
+    current_plan = db.query(Plan).filter(Plan.id == subscriber.plan_id).first()
+    new_plan = db.query(Plan).filter(Plan.id == new_plan_id).first()
+    if not new_plan:
+        raise HTTPException(status_code=404, detail="New plan not found")
+
+    if not subscriber.next_billing_date:
+        raise HTTPException(status_code=400, detail="No billing date set")
+
+    days_remaining, total_days = get_days_remaining(
+        subscriber.next_billing_date, current_plan.billing_cycle
+    )
+
+    proration = calculate_proration(
+        old_price=current_plan.price,
+        new_price=new_plan.price,
+        days_remaining=days_remaining,
+        total_days=total_days,
+    )
+
+    return {
+        "current_plan": current_plan.name,
+        "new_plan": new_plan.name,
+        "proration": proration,
+    }
 
 
 @router.post("/", response_model=SubscriberResponse, status_code=201)
