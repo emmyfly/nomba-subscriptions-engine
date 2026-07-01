@@ -43,3 +43,16 @@ def root():
         "status":"running",
         "docs": "Go to /docs to see all endpoints",
     }
+
+@app.get("/debug-env")
+def debug_env():
+    from app.core.config import settings
+    return {
+        "client_id_repr": repr(settings.NOMBA_CLIENT_ID),
+        "client_id_len": len(settings.NOMBA_CLIENT_ID),
+        "secret_repr": repr(settings.NOMBA_CLIENT_SECRET),
+        "secret_len": len(settings.NOMBA_CLIENT_SECRET),
+        "account_id_repr": repr(settings.NOMBA_ACCOUNT_ID),
+        "account_id_len": len(settings.NOMBA_ACCOUNT_ID),
+        "base_url": settings.NOMBA_BASE_URL,
+    }
