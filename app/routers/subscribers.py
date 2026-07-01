@@ -78,10 +78,14 @@ def create_subscriber(data: SubscriberCreate, db: Session = Depends(get_db)):
     if not plan.is_active:
         raise HTTPException(status_code=400, detail="This plan is no longer active")
 
-    nomba_result = create_virtual_account(
-        account_name=data.name,
-        email=data.email,
-    )
+    try:
+        nomba_result = create_virtual_account(
+            account_name=data.name,
+            email=data.email,
+        )
+    except Exception as e:
+        # DIAG: surface the full Nomba error (status + body) in the API response
+        raise HTTPException(status_code=502, detail=str(e))
 
     next_billing = calculate_next_billing_date(plan.billing_cycle)
 
