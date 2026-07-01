@@ -90,7 +90,7 @@ def create_subscriber(data: SubscriberCreate, db: Session = Depends(get_db)):
             "account_id": f"mock_{mock_id}",
             "account_number": f"903{mock_id[-7:]}",
             "bank_name": "Nomba Microfinance Bank",
-        })
+        }
 
     next_billing = calculate_next_billing_date(plan.billing_cycle)
 
