@@ -18,4 +18,6 @@ class Payment(Base):
     nomba_transaction_ref = Column(String, default="")
     nomba_session_id = Column(String, default="")
 
+    payout_status = Column(String, default="pending")
+
     created_at = Column(DateTime, default=lambda: datetime.utcnow())

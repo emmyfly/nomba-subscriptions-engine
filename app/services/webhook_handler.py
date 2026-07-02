@@ -2,8 +2,10 @@ from sqlalchemy.orm import Session
 from app.models.subscriber import Subscriber
 from app.models.payment import Payment
 from app.models.plan import Plan
+from app.models.tenant import Tenant
 from app.services.billing import advance_billing_date
 from app.services.dunning import handle_failed_payment, handle_successful_payment
+from app.services.payout import process_instant_payout
 
 
 def process_payment_webhook(payload: dict, db: Session) -> str:
@@ -24,6 +26,13 @@ def process_payment_webhook(payload: dict, db: Session) -> str:
     if not subscriber:
         return f"No subscriber found for account {account_number}"
 
+    if transaction_ref:
+        existing = db.query(Payment).filter(
+            Payment.nomba_transaction_ref == transaction_ref
+        ).first()
+        if existing:
+            return f"Duplicate webhook ignored (transaction {transaction_ref} already processed)"
+
     payment = Payment(
         subscriber_id=subscriber.id,
         tenant_id=subscriber.tenant_id,
@@ -43,6 +52,11 @@ def process_payment_webhook(payload: dict, db: Session) -> str:
                 current_date=subscriber.next_billing_date,
                 billing_cycle=plan.billing_cycle,
             )
+
+        db.flush()  # assigns payment.id, needed before logging the payout against it
+        tenant = db.query(Tenant).filter(Tenant.id == subscriber.tenant_id).first()
+        if tenant:
+            process_instant_payout(payment, tenant, db)
     elif event_type == "payment_failed":
         result = handle_failed_payment(subscriber, db)
     else:

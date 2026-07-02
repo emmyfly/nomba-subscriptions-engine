@@ -10,7 +10,8 @@ from app.routers import plans
 from app.routers import plans, subscribers, payments, webhooks
 
 from app.models.tenant import Tenant
-from app.routers import plans, subscribers, payments, webhooks, tenants
+from app.models.payout_log import PayoutLog
+from app.routers import plans, subscribers, payments, webhooks, tenants, payouts
 
 
 app = FastAPI(
@@ -34,6 +35,7 @@ app.include_router(tenants.router, prefix="/api/tenants", tags=["Tenants"])
 
 app.include_router(subscribers.router, prefix="/api/subscribers", tags=["Subscribers"])
 app.include_router(payments.router, prefix="/api/payments", tags=["Payments"])
+app.include_router(payouts.router, prefix="/api/payouts", tags=["Payouts"])
 app.include_router(webhooks.router, prefix="/api/webhooks", tags=["Webhooks"])
 
 @app.get("/")

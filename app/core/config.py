@@ -17,4 +17,6 @@ class Settings:
     DATABASE_URL:str = os.getenv("DATABASE_URL","sqlite:///./subscription.db")
     SECRET_KEY: str = os.getenv("SECRET_KEY","dev-secret-change-me")
 
+    PLATFORM_FEE_PERCENT: float = float(os.getenv("PLATFORM_FEE_PERCENT", "3.0"))
+
 settings = Settings()

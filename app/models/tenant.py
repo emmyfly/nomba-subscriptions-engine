@@ -13,4 +13,8 @@ class Tenant(Base):
     is_active = Column(Boolean, default=True)
     nomba_subaccount_id = Column(String, default="")
 
+    bank_account_number = Column(String, default="")
+    bank_code = Column(String, default="")
+    bank_account_name = Column(String, default="")
+
     created_at = Column(DateTime, default=lambda: datetime.utcnow())
