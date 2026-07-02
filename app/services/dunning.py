@@ -1,4 +1,4 @@
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
 
 from app.models.subscriber import Subscriber
@@ -14,7 +14,7 @@ RETRY_INTERVALS = {
 
 def handle_failed_payment(subscriber: Subscriber, db: Session) -> str:
     subscriber.retry_count += 1
-    subscriber.last_retry_at = datetime.now(timezone.utc)
+    subscriber.last_retry_at = datetime.utcnow()
 
     if subscriber.retry_count >= subscriber.max_retries:
         subscriber.status = "suspended"
@@ -40,7 +40,7 @@ def handle_successful_payment(subscriber: Subscriber, db: Session) -> str:
 
 
 def get_subscribers_due_for_retry(db: Session) -> list:
-    now = datetime.now(timezone.utc)
+    now = datetime.utcnow()
 
     past_due = db.query(Subscriber).filter(
         Subscriber.status == "past_due",

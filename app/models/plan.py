@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from sqlalchemy import Column, Integer, String, Float, Boolean, DateTime,ForeignKey
 from app.core.database import Base
 
@@ -14,6 +14,6 @@ class Plan(Base):
     billing_cycle = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
 
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
-    updated_at = Column(DateTime, default=lambda: datetime.now(timezone.utc),
-                        onupdate=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime, default=lambda: datetime.utcnow())
+    updated_at = Column(DateTime, default=lambda: datetime.utcnow(),
+                        onupdate=lambda: datetime.utcnow())

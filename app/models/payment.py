@@ -1,4 +1,4 @@
-from datetime import datetime, timezone
+from datetime import datetime
 from sqlalchemy import Column, Integer, String, Float, DateTime, ForeignKey
 from app.core.database import Base
 
@@ -18,4 +18,4 @@ class Payment(Base):
     nomba_transaction_ref = Column(String, default="")
     nomba_session_id = Column(String, default="")
 
-    created_at = Column(DateTime, default=lambda: datetime.now(timezone.utc))
+    created_at = Column(DateTime, default=lambda: datetime.utcnow())

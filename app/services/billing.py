@@ -1,8 +1,8 @@
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta
 
 
 def calculate_next_billing_date(billing_cycle: str) -> datetime:
-    now = datetime.now(timezone.utc)
+    now = datetime.utcnow()
 
     cycle_days = {
         "weekly": timedelta(weeks=1),
@@ -21,7 +21,7 @@ def calculate_next_billing_date(billing_cycle: str) -> datetime:
 def is_payment_overdue(next_billing_date: datetime) -> bool:
     if next_billing_date is None:
         return False
-    now = datetime.now(timezone.utc)
+    now = datetime.utcnow()
     return now > next_billing_date
 
 
@@ -60,7 +60,7 @@ def calculate_proration(old_price: float, new_price: float, days_remaining: int,
 
 
 def get_days_remaining(next_billing_date: datetime, billing_cycle: str) -> tuple:
-    now = datetime.now(timezone.utc)
+    now = datetime.utcnow()
 
     cycle_total = {
         "weekly": 7,
