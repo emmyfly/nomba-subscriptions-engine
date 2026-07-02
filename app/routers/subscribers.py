@@ -26,17 +26,17 @@ def get_subscribers(tenant_id: int = None, status: str = None, db: Session = Dep
         query = query.filter(Subscriber.status == status)
     return query.all()
 
+@router.get("/due-for-retry", response_model=List[SubscriberResponse])
+def get_retry_queue(db: Session = Depends(get_db)):
+    subscribers = get_subscribers_due_for_retry(db)
+    return subscribers
+
 @router.get("/{subscriber_id}", response_model=SubscriberResponse)
 def get_subscriber(subscriber_id: int, db: Session = Depends(get_db)):
     subscriber = db.query(Subscriber).filter(Subscriber.id == subscriber_id).first()
     if not subscriber:
         raise HTTPException(status_code=404, detail="Subscriber not found")
     return subscriber
-
-@router.get("/due-for-retry", response_model=List[SubscriberResponse])
-def get_retry_queue(db: Session = Depends(get_db)):
-    subscribers = get_subscribers_due_for_retry(db)
-    return subscribers
 
 @router.get("/{subscriber_id}/proration-preview")
 def preview_proration(subscriber_id: int, new_plan_id: int, db: Session = Depends(get_db)):
