@@ -14,7 +14,7 @@ class Settings:
     # TEMP: gates /debug-nomba-geo. Remove alongside that endpoint once the geo test is done.
     DEBUG_TOKEN: str = os.getenv("DEBUG_TOKEN", "")
 
-    DATABASE_URL:str = os.getenv("DATABASE_URL","sqlite:/// ./subscription.db")
+    DATABASE_URL:str = os.getenv("DATABASE_URL","sqlite:///./subscription.db")
     SECRET_KEY: str = os.getenv("SECRET_KEY","dev-secret-change-me")
 
 settings = Settings()
