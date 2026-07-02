@@ -9,6 +9,7 @@ from app.services.dunning import get_subscribers_due_for_retry
 from app.core.database import get_db
 from app.models.subscriber import Subscriber
 from app.models.plan import Plan
+from app.models.tenant import Tenant
 from app.schemas.subscriber import SubscriberCreate, SubscriberUpdate, SubscriberResponse
 from app.services.nomba import create_virtual_account
 from app.services.billing import calculate_next_billing_date
@@ -78,10 +79,13 @@ def create_subscriber(data: SubscriberCreate, db: Session = Depends(get_db)):
     if not plan.is_active:
         raise HTTPException(status_code=400, detail="This plan is no longer active")
 
+    tenant = db.query(Tenant).filter(Tenant.id == data.tenant_id).first()
+
     try:
         nomba_result = create_virtual_account(
             account_name=data.name,
             email=data.email,
+            subaccount_id=tenant.nomba_subaccount_id if tenant else "",
         )
     except Exception:
         import time

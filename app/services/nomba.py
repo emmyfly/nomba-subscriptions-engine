@@ -27,11 +27,16 @@ def get_nomba_token() -> str:
     return data["data"]["access_token"]
 
 
-def create_virtual_account(account_name: str, email: str) -> dict:
+def create_virtual_account(account_name: str, email: str, subaccount_id: str = "") -> dict:
     token = get_nomba_token()
     account_ref = f"subflow_{secrets.token_hex(12)}"
 
-    url = f"{settings.NOMBA_BASE_URL}/v1/accounts/virtual"
+    subaccount_id = subaccount_id or settings.NOMBA_SUBACCOUNT_ID
+    url = (
+        f"{settings.NOMBA_BASE_URL}/v1/accounts/virtual/{subaccount_id}"
+        if subaccount_id
+        else f"{settings.NOMBA_BASE_URL}/v1/accounts/virtual"
+    )
     headers = {
         "Authorization": f"Bearer {token}",
         "Content-Type": "application/json",

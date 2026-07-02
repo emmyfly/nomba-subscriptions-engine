@@ -11,5 +11,6 @@ class Tenant(Base):
     email = Column(String, nullable=False)
     api_key = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
+    nomba_subaccount_id = Column(String, default="")
 
     created_at = Column(DateTime, default=lambda: datetime.utcnow())
