@@ -14,6 +14,10 @@ class Settings:
     # TEMP: gates /debug-nomba-geo. Remove alongside that endpoint once the geo test is done.
     DEBUG_TOKEN: str = os.getenv("DEBUG_TOKEN", "")
 
+    # Gates /api/admin/run-billing-check. Called by an external cron, not an in-process
+    # scheduler, since Render's free tier can spin the process down between requests.
+    CRON_TOKEN: str = os.getenv("CRON_TOKEN", "")
+
     DATABASE_URL:str = os.getenv("DATABASE_URL","sqlite:///./subscription.db")
     SECRET_KEY: str = os.getenv("SECRET_KEY","dev-secret-change-me")
 

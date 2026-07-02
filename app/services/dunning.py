@@ -39,6 +39,15 @@ def handle_successful_payment(subscriber: Subscriber, db: Session) -> str:
         return f"{subscriber.name} payment confirmed"
 
 
+def get_subscribers_overdue_for_first_notice(db: Session) -> list:
+    now = datetime.utcnow()
+    return db.query(Subscriber).filter(
+        Subscriber.status == "active",
+        Subscriber.next_billing_date.isnot(None),
+        Subscriber.next_billing_date <= now,
+    ).all()
+
+
 def get_subscribers_due_for_retry(db: Session) -> list:
     now = datetime.utcnow()
 

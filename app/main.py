@@ -11,7 +11,7 @@ from app.routers import plans, subscribers, payments, webhooks
 
 from app.models.tenant import Tenant
 from app.models.payout_log import PayoutLog
-from app.routers import plans, subscribers, payments, webhooks, tenants, payouts
+from app.routers import plans, subscribers, payments, webhooks, tenants, payouts, admin
 
 
 app = FastAPI(
@@ -37,6 +37,7 @@ app.include_router(subscribers.router, prefix="/api/subscribers", tags=["Subscri
 app.include_router(payments.router, prefix="/api/payments", tags=["Payments"])
 app.include_router(payouts.router, prefix="/api/payouts", tags=["Payouts"])
 app.include_router(webhooks.router, prefix="/api/webhooks", tags=["Webhooks"])
+app.include_router(admin.router, prefix="/api/admin", tags=["Admin"])
 
 @app.get("/")
 def root():
