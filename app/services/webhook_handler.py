@@ -45,12 +45,34 @@ def process_payment_webhook(payload: dict, db: Session) -> str:
     db.add(payment)
 
     if event_type == "payment_success":
-        result = handle_successful_payment(subscriber, db)
         plan = db.query(Plan).filter(Plan.id == subscriber.plan_id).first()
-        if plan and subscriber.next_billing_date:
-            subscriber.next_billing_date = advance_billing_date(
-                current_date=subscriber.next_billing_date,
-                billing_cycle=plan.billing_cycle,
+        subscriber.accumulated_balance += amount
+
+        # Deposits don't have to cover a full cycle in one go -- they accumulate
+        # (Save-to-Subscribe) until there's enough to cover subscriber.amount,
+        # at which point the cycle completes and any overflow carries forward.
+        cycle_messages = []
+        while (
+            plan
+            and subscriber.amount > 0
+            and subscriber.accumulated_balance >= subscriber.amount
+        ):
+            subscriber.accumulated_balance -= subscriber.amount
+            cycle_messages.append(handle_successful_payment(subscriber, db))
+            if subscriber.next_billing_date:
+                subscriber.next_billing_date = advance_billing_date(
+                    current_date=subscriber.next_billing_date,
+                    billing_cycle=plan.billing_cycle,
+                )
+
+        if cycle_messages:
+            result = "; ".join(cycle_messages)
+        else:
+            still_owed = round(subscriber.amount - subscriber.accumulated_balance, 2)
+            result = (
+                f"{subscriber.name} deposited {amount}: "
+                f"{subscriber.accumulated_balance:.2f} saved toward {subscriber.amount:.2f} "
+                f"({still_owed:.2f} still needed)"
             )
 
         db.flush()  # assigns payment.id, needed before logging the payout against it

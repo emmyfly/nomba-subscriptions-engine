@@ -21,6 +21,7 @@ class Subscriber(Base):
     nomba_bank_name = Column(String, default="")
 
     amount = Column(Float, default=0.0)
+    accumulated_balance = Column(Float, default=0.0)
     next_billing_date = Column(DateTime, nullable=True)
 
     retry_count = Column(Integer, default=0)

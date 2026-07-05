@@ -31,6 +31,7 @@ class SubscriberResponse(BaseModel):
     nomba_account_number: str
     nomba_bank_name: str
     amount: float
+    accumulated_balance: float
     next_billing_date: Optional[datetime] = None
     created_at: datetime
     updated_at: datetime
