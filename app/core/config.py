@@ -11,9 +11,6 @@ class Settings:
     NOMBA_SUBACCOUNT_ID: str = os.getenv("NOMBA_SUBACCOUNT_ID", "")
     NOMBA_BASE_URL: str = os.getenv("NOMBA_BASE_URL","https://sandbox.nomba.com")
 
-    # TEMP: gates /debug-nomba-geo. Remove alongside that endpoint once the geo test is done.
-    DEBUG_TOKEN: str = os.getenv("DEBUG_TOKEN", "")
-
     # Gates /api/admin/run-billing-check. Called by an external cron, not an in-process
     # scheduler, since Render's free tier can spin the process down between requests.
     CRON_TOKEN: str = os.getenv("CRON_TOKEN", "")
