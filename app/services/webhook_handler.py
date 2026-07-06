@@ -6,6 +6,7 @@ from app.models.tenant import Tenant
 from app.services.billing import advance_billing_date
 from app.services.dunning import handle_failed_payment, handle_successful_payment
 from app.services.payout import process_instant_payout
+from app.services.outbound_webhook import send_tenant_webhook
 
 
 def process_payment_webhook(payload: dict, db: Session) -> str:
@@ -44,6 +45,8 @@ def process_payment_webhook(payload: dict, db: Session) -> str:
     )
     db.add(payment)
 
+    tenant = db.query(Tenant).filter(Tenant.id == subscriber.tenant_id).first()
+
     if event_type == "payment_success":
         plan = db.query(Plan).filter(Plan.id == subscriber.plan_id).first()
         subscriber.accumulated_balance += amount
@@ -76,11 +79,25 @@ def process_payment_webhook(payload: dict, db: Session) -> str:
             )
 
         db.flush()  # assigns payment.id, needed before logging the payout against it
-        tenant = db.query(Tenant).filter(Tenant.id == subscriber.tenant_id).first()
         if tenant:
             process_instant_payout(payment, tenant, db)
+            send_tenant_webhook(tenant, "subscription.payment_succeeded", {
+                "subscriber_id": subscriber.id,
+                "subscriber_name": subscriber.name,
+                "amount": amount,
+                "status": subscriber.status,
+                "accumulated_balance": subscriber.accumulated_balance,
+                "next_billing_date": subscriber.next_billing_date,
+            }, db)
     elif event_type == "payment_failed":
         result = handle_failed_payment(subscriber, db)
+        if tenant:
+            send_tenant_webhook(tenant, "subscription.payment_failed", {
+                "subscriber_id": subscriber.id,
+                "subscriber_name": subscriber.name,
+                "status": subscriber.status,
+                "retry_count": subscriber.retry_count,
+            }, db)
     else:
         result = f"Unknown event type: {event_type}"
 

@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 from pydantic import BaseModel
 
 
@@ -25,6 +26,19 @@ class PayoutLogResponse(BaseModel):
     net_amount: float
     status: str
     nomba_transfer_ref: str
+    error_detail: str
+    created_at: datetime
+
+    model_config = {"from_attributes": True}
+
+
+class WebhookDeliveryLogResponse(BaseModel):
+    id: int
+    tenant_id: int
+    event_type: str
+    url: str
+    success: bool
+    status_code: Optional[int]
     error_detail: str
     created_at: datetime
 

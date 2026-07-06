@@ -18,4 +18,7 @@ class Tenant(Base):
     bank_account_name = Column(String, default="")
     bank_verification_status = Column(String, default="unverified")
 
+    webhook_url = Column(String, default="")
+    webhook_secret = Column(String, default="")
+
     created_at = Column(DateTime, default=lambda: datetime.utcnow())

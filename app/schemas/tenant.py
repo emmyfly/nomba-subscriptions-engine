@@ -13,6 +13,8 @@ class TenantUpdate(BaseModel):
     bank_account_number: Optional[str] = None
     bank_code: Optional[str] = None
     bank_account_name: Optional[str] = None
+    webhook_url: Optional[str] = None
+    webhook_secret: Optional[str] = None
 
 
 class TenantResponse(BaseModel):
@@ -26,6 +28,7 @@ class TenantResponse(BaseModel):
     bank_code: str
     bank_account_name: str
     bank_verification_status: str
+    webhook_url: str
     created_at: datetime
 
     model_config = {"from_attributes": True}
