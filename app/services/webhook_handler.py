@@ -15,12 +15,16 @@ def process_payment_webhook(payload: dict, db: Session) -> str:
     data = payload.get("data", {})
 
     transaction = data.get("transaction", {})
-    order = data.get("order", {})
 
-    account_number = data.get("accountNumber", "")
+    # Nomba's real webhook payload puts the virtual account that received the
+    # transfer at data.transaction.aliasAccountNumber, and the session at
+    # data.transaction.sessionId -- there is no top-level accountNumber or
+    # order object, despite what earlier code (and manually-crafted test
+    # payloads all session) assumed.
+    account_number = transaction.get("aliasAccountNumber", "")
     amount = transaction.get("transactionAmount", 0)
     transaction_ref = transaction.get("transactionId", "")
-    session_id = order.get("orderReference", "")
+    session_id = transaction.get("sessionId", "")
     subscriber = db.query(Subscriber).filter(
         Subscriber.nomba_account_number == account_number
     ).first()

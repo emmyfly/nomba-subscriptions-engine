@@ -11,6 +11,12 @@ class Settings:
     NOMBA_SUBACCOUNT_ID: str = os.getenv("NOMBA_SUBACCOUNT_ID", "")
     NOMBA_BASE_URL: str = os.getenv("NOMBA_BASE_URL","https://sandbox.nomba.com")
 
+    # Signature key configured when setting up the webhook on Nomba's dashboard.
+    # If unset, incoming webhooks are processed without signature verification
+    # (logged loudly) -- needed since Nomba can't reach this deployment to send
+    # a real, signed webhook while the sandbox IP block is unresolved.
+    NOMBA_WEBHOOK_SECRET: str = os.getenv("NOMBA_WEBHOOK_SECRET", "")
+
     # Gates /api/admin/run-billing-check. Called by an external cron, not an in-process
     # scheduler, since Render's free tier can spin the process down between requests.
     CRON_TOKEN: str = os.getenv("CRON_TOKEN", "")
