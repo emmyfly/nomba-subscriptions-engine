@@ -16,5 +16,6 @@ class Tenant(Base):
     bank_account_number = Column(String, default="")
     bank_code = Column(String, default="")
     bank_account_name = Column(String, default="")
+    bank_verification_status = Column(String, default="unverified")
 
     created_at = Column(DateTime, default=lambda: datetime.utcnow())

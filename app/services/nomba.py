@@ -98,3 +98,29 @@ def transfer_to_bank(
         )
 
     return response.json()
+
+
+def lookup_bank_account(account_number: str, bank_code: str) -> str:
+    """Returns the real registered account holder name for a bank account."""
+    token = get_nomba_token()
+
+    url = f"{settings.NOMBA_BASE_URL}/v1/transfers/bank/lookup"
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Content-Type": "application/json",
+        "accountId": settings.NOMBA_ACCOUNT_ID,
+        "User-Agent": "curl/8.5.0",
+    }
+    body = {
+        "accountNumber": account_number,
+        "bankCode": bank_code,
+    }
+
+    response = httpx.post(url, json=body, headers=headers, follow_redirects=True, timeout=30.0)
+
+    if not response.is_success:
+        raise Exception(
+            f"Nomba bank account lookup failed ({response.status_code}): {response.text}"
+        )
+
+    return response.json()["data"]["accountName"]

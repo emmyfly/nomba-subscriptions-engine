@@ -25,6 +25,7 @@ class TenantResponse(BaseModel):
     bank_account_number: str
     bank_code: str
     bank_account_name: str
+    bank_verification_status: str
     created_at: datetime
 
     model_config = {"from_attributes": True}

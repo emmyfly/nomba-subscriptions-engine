@@ -6,6 +6,7 @@ from typing import List
 from app.core.database import get_db
 from app.models.tenant import Tenant
 from app.schemas.tenant import TenantCreate, TenantUpdate, TenantResponse
+from app.services.verification import verify_tenant_bank_account
 
 
 router = APIRouter()
@@ -41,6 +42,10 @@ def update_tenant(tenant_id: int, data: TenantUpdate, db: Session = Depends(get_
     update_data = data.model_dump(exclude_unset=True)
     for field, value in update_data.items():
         setattr(tenant, field, value)
+
+    bank_fields_touched = {"bank_account_number", "bank_code", "bank_account_name"} & update_data.keys()
+    if bank_fields_touched and tenant.bank_account_number and tenant.bank_code:
+        tenant.bank_verification_status = verify_tenant_bank_account(tenant)
 
     db.commit()
     db.refresh(tenant)

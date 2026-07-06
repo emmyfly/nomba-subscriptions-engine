@@ -31,6 +31,24 @@ def process_instant_payout(payment: Payment, tenant: Tenant, db: Session) -> Pay
         )
         return log
 
+    if tenant.bank_verification_status == "name_mismatch":
+        log = PayoutLog(
+            tenant_id=tenant.id,
+            payment_id=payment.id,
+            gross_amount=payment.amount,
+            platform_fee=platform_fee,
+            net_amount=net_amount,
+            status="skipped_name_mismatch",
+            error_detail="Bank account name does not match tenant's claimed name -- held for manual review",
+        )
+        db.add(log)
+        payment.payout_status = "skipped_name_mismatch"
+        logger.warning(
+            "Payout held for payment %s: tenant %s bank account name mismatch",
+            payment.id, tenant.id,
+        )
+        return log
+
     merchant_tx_ref = f"payout_{payment.id}"
 
     try:
