@@ -20,8 +20,8 @@ from app.routers import plans, subscribers, payments, webhooks, tenants, payouts
 
 
 app = FastAPI(
-     title="Nomba subscription Engine",
-     description="Managed subscrition on Nomba payment infratsructure",
+     title="SubFlow",
+     description="Multi-tenant subscription billing engine built on Nomba's payment infrastructure",
      version="0.1.0",
 
 )
@@ -52,7 +52,7 @@ app.include_router(webhook_logs.router, prefix="/api/webhook-deliveries", tags=[
 @app.get("/")
 def root():
     return{
-        "name":"Nomba Subscrition Engine",
+        "name":"SubFlow",
         "status":"running",
         "docs": "Go to /docs to see all endpoints",
     }
