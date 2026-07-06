@@ -1,9 +1,10 @@
 import secrets
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from sqlalchemy.orm import Session
 from typing import List
 
 from app.core.database import get_db
+from app.core.rate_limit import limiter
 from app.models.tenant import Tenant
 from app.schemas.tenant import TenantCreate, TenantUpdate, TenantResponse
 from app.services.verification import verify_tenant_bank_account
@@ -13,7 +14,8 @@ router = APIRouter()
 
 
 @router.post("/", response_model=TenantResponse, status_code=201)
-def create_tenant(data: TenantCreate, db: Session = Depends(get_db)):
+@limiter.limit("5/hour")
+def create_tenant(request: Request, data: TenantCreate, db: Session = Depends(get_db)):
     api_key = f"nk_live_{secrets.token_hex(16)}"
 
     new_tenant = Tenant(
