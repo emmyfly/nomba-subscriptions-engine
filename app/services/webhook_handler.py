@@ -7,6 +7,7 @@ from app.services.billing import advance_billing_date
 from app.services.dunning import handle_failed_payment, handle_successful_payment
 from app.services.payout import process_instant_payout
 from app.services.outbound_webhook import send_tenant_webhook
+from app.services.invoicing import generate_invoice_number
 
 
 def process_payment_webhook(payload: dict, db: Session) -> str:
@@ -34,6 +35,13 @@ def process_payment_webhook(payload: dict, db: Session) -> str:
         if existing:
             return f"Duplicate webhook ignored (transaction {transaction_ref} already processed)"
 
+    tenant = db.query(Tenant).filter(Tenant.id == subscriber.tenant_id).first()
+
+    prior_payments = db.query(Payment).filter(Payment.tenant_id == subscriber.tenant_id).count()
+    invoice_number = generate_invoice_number(
+        tenant.name if tenant else "GEN", prior_payments + 1
+    )
+
     payment = Payment(
         subscriber_id=subscriber.id,
         tenant_id=subscriber.tenant_id,
@@ -42,10 +50,9 @@ def process_payment_webhook(payload: dict, db: Session) -> str:
         event_type=event_type,
         nomba_transaction_ref=transaction_ref,
         nomba_session_id=session_id,
+        invoice_number=invoice_number,
     )
     db.add(payment)
-
-    tenant = db.query(Tenant).filter(Tenant.id == subscriber.tenant_id).first()
 
     if event_type == "payment_success":
         plan = db.query(Plan).filter(Plan.id == subscriber.plan_id).first()

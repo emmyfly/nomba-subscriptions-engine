@@ -12,6 +12,7 @@ class PaymentResponse(BaseModel):
     nomba_transaction_ref: str
     nomba_session_id: str
     payout_status: str
+    invoice_number: str
     created_at: datetime
 
     model_config = {"from_attributes": True}
