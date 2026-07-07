@@ -9,7 +9,7 @@ from app.core.database import get_db
 from app.core.rate_limit import limiter
 from app.models.tenant import Tenant
 from app.schemas.tenant import TenantCreate, TenantUpdate, TenantResponse
-from app.services.verification import verify_tenant_bank_account
+from app.services.verification import names_reasonably_match, verify_tenant_bank_account
 
 
 router = APIRouter()
@@ -28,6 +28,7 @@ def create_tenant(request: Request, data: TenantCreate, db: Session = Depends(ge
         name=data.name,
         email=data.email,
         api_key=api_key,
+        contact_full_name=data.contact_full_name or "",
     )
 
     db.add(new_tenant)
@@ -66,6 +67,17 @@ def update_tenant(
     bank_fields_touched = {"bank_account_number", "bank_code", "bank_account_name"} & update_data.keys()
     if bank_fields_touched and tenant.bank_account_number and tenant.bank_code:
         tenant.bank_verification_status = verify_tenant_bank_account(tenant)
+
+    # Self-reported identity check: does the person's own name (given at signup)
+    # match who they claim owns the bank account? Weaker than bank_verification_status
+    # (both sides are self-reported, so it can't catch a consistent liar) but catches
+    # honest data-entry mistakes -- e.g. typing a relative's name by accident.
+    if "bank_account_name" in update_data and tenant.contact_full_name and tenant.bank_account_name:
+        tenant.identity_match_status = (
+            "match"
+            if names_reasonably_match(tenant.contact_full_name, tenant.bank_account_name)
+            else "mismatch"
+        )
 
     db.commit()
     db.refresh(tenant)

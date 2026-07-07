@@ -13,6 +13,9 @@ class Tenant(Base):
     is_active = Column(Boolean, default=True)
     nomba_subaccount_id = Column(String, default="")
 
+    contact_full_name = Column(String, default="")
+    identity_match_status = Column(String, default="not_checked")
+
     bank_account_number = Column(String, default="")
     bank_code = Column(String, default="")
     bank_account_name = Column(String, default="")
