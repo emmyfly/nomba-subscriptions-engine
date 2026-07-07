@@ -1,5 +1,6 @@
 import secrets
 from fastapi import APIRouter, Depends, HTTPException, Header, Request
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from typing import List, Optional
 
@@ -17,6 +18,10 @@ router = APIRouter()
 @router.post("/", response_model=TenantResponse, status_code=201)
 @limiter.limit("5/hour")
 def create_tenant(request: Request, data: TenantCreate, db: Session = Depends(get_db)):
+    existing = db.query(Tenant).filter(Tenant.email == data.email).first()
+    if existing:
+        raise HTTPException(status_code=409, detail="This email is already registered")
+
     api_key = f"nk_live_{secrets.token_hex(16)}"
 
     new_tenant = Tenant(
@@ -26,7 +31,11 @@ def create_tenant(request: Request, data: TenantCreate, db: Session = Depends(ge
     )
 
     db.add(new_tenant)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(status_code=409, detail="This email is already registered")
     db.refresh(new_tenant)
     return new_tenant
 

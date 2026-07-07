@@ -8,7 +8,7 @@ class Tenant(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     name = Column(String, nullable=False)
-    email = Column(String, nullable=False)
+    email = Column(String, nullable=False, unique=True)
     api_key = Column(String, nullable=False)
     is_active = Column(Boolean, default=True)
     nomba_subaccount_id = Column(String, default="")
