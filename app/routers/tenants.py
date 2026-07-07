@@ -1,8 +1,9 @@
 import secrets
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, Depends, HTTPException, Header, Request
 from sqlalchemy.orm import Session
-from typing import List
+from typing import List, Optional
 
+from app.core.admin_auth import authorize_tenant_write, require_admin_token
 from app.core.database import get_db
 from app.core.rate_limit import limiter
 from app.models.tenant import Tenant
@@ -30,16 +31,24 @@ def create_tenant(request: Request, data: TenantCreate, db: Session = Depends(ge
     return new_tenant
 
 
-@router.get("/", response_model=List[TenantResponse])
+@router.get("/", response_model=List[TenantResponse], dependencies=[Depends(require_admin_token)])
 def get_tenants(db: Session = Depends(get_db)):
     return db.query(Tenant).all()
 
 
 @router.put("/{tenant_id}", response_model=TenantResponse)
-def update_tenant(tenant_id: int, data: TenantUpdate, db: Session = Depends(get_db)):
+def update_tenant(
+    tenant_id: int,
+    data: TenantUpdate,
+    db: Session = Depends(get_db),
+    x_admin_token: str = Header(default=""),
+    authorization: str = Header(default=""),
+):
     tenant = db.query(Tenant).filter(Tenant.id == tenant_id).first()
     if not tenant:
         raise HTTPException(status_code=404, detail="Tenant not found")
+
+    authorize_tenant_write(tenant, x_admin_token, authorization)
 
     update_data = data.model_dump(exclude_unset=True)
     for field, value in update_data.items():

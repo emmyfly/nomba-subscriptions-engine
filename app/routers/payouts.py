@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from typing import List
 
+from app.core.admin_auth import require_admin_token
 from app.core.database import get_db
 from app.models.payout_log import PayoutLog
 from app.schemas.payment import PayoutLogResponse
@@ -10,7 +11,7 @@ from app.schemas.payment import PayoutLogResponse
 router = APIRouter()
 
 
-@router.get("/", response_model=List[PayoutLogResponse])
+@router.get("/", response_model=List[PayoutLogResponse], dependencies=[Depends(require_admin_token)])
 def get_payout_logs(tenant_id: int = None, limit: int = 50, db: Session = Depends(get_db)):
     query = db.query(PayoutLog)
     if tenant_id:

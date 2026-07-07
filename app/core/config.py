@@ -21,6 +21,10 @@ class Settings:
     # scheduler, since Render's free tier can spin the process down between requests.
     CRON_TOKEN: str = os.getenv("CRON_TOKEN", "")
 
+    # Gates dashboard-only read endpoints and tenant-write authorization.
+    # Inactive (no enforcement) until explicitly set -- see app/core/admin_auth.py.
+    ADMIN_TOKEN: str = os.getenv("ADMIN_TOKEN", "")
+
     DATABASE_URL:str = os.getenv("DATABASE_URL","sqlite:///./subscription.db")
     SECRET_KEY: str = os.getenv("SECRET_KEY","dev-secret-change-me")
 

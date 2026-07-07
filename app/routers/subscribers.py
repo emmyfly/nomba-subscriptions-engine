@@ -6,6 +6,7 @@ from app.services.billing import calculate_proration, get_days_remaining
 
 from app.services.dunning import get_subscribers_due_for_retry
 
+from app.core.admin_auth import require_admin_token
 from app.core.database import get_db
 from app.models.subscriber import Subscriber
 from app.models.plan import Plan
@@ -18,7 +19,7 @@ from app.services.billing import calculate_next_billing_date
 router = APIRouter()
 
 
-@router.get("/", response_model=List[SubscriberResponse])
+@router.get("/", response_model=List[SubscriberResponse], dependencies=[Depends(require_admin_token)])
 def get_subscribers(tenant_id: int = None, status: str = None, db: Session = Depends(get_db)):
     query = db.query(Subscriber)
     if tenant_id:
@@ -27,12 +28,12 @@ def get_subscribers(tenant_id: int = None, status: str = None, db: Session = Dep
         query = query.filter(Subscriber.status == status)
     return query.all()
 
-@router.get("/due-for-retry", response_model=List[SubscriberResponse])
+@router.get("/due-for-retry", response_model=List[SubscriberResponse], dependencies=[Depends(require_admin_token)])
 def get_retry_queue(db: Session = Depends(get_db)):
     subscribers = get_subscribers_due_for_retry(db)
     return subscribers
 
-@router.get("/{subscriber_id}", response_model=SubscriberResponse)
+@router.get("/{subscriber_id}", response_model=SubscriberResponse, dependencies=[Depends(require_admin_token)])
 def get_subscriber(subscriber_id: int, db: Session = Depends(get_db)):
     subscriber = db.query(Subscriber).filter(Subscriber.id == subscriber_id).first()
     if not subscriber:
