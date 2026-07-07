@@ -8,7 +8,7 @@ Beyond replicating existing billing tooling, SubFlow introduces **Save-to-Subscr
 |---|---|
 | **Live Demo (frontend)** | https://subflow-frontend-coral.vercel.app |
 | **Live API (backend)** | https://nomba-subscriptions-engine.onrender.com |
-| **Interactive API Docs** | https://nomba-subscriptions-engine.onrender.com/docs |
+| **API Reference (ReDoc)** | https://nomba-subscriptions-engine.onrender.com/redoc |
 | **Backend Repo** | https://github.com/emmyfly/nomba-subscriptions-engine |
 | **Frontend Repo** | https://github.com/emmyfly/subflow-frontend |
 | **Architecture & Security Note** | [ARCHITECTURE.md](./ARCHITECTURE.md) |
@@ -241,7 +241,7 @@ ARCHITECTURE.md                  # Full architecture & security note
 |--------|----------|-------------|
 | POST | `/api/admin/run-billing-check?token=...` | Runs the dunning first-notice/retry-escalation sweep; token-gated, called by an external hourly cron |
 
-Full interactive documentation (request/response schemas, try-it-out): https://nomba-subscriptions-engine.onrender.com/docs
+Full API reference (request/response schemas): https://nomba-subscriptions-engine.onrender.com/redoc
 
 ## Getting Started Locally
 
@@ -270,7 +270,7 @@ export DATABASE_URL=sqlite:///./subscription.db      # or a postgresql:// URL
 uvicorn app.main:app --reload --port 8000
 ```
 
-Visit `http://localhost:8000/docs` for interactive API documentation.
+Visit `http://localhost:8000/redoc` for the API reference. (Swagger UI's interactive "Try it out" is deliberately disabled — see [ARCHITECTURE.md](./ARCHITECTURE.md) — so `/docs` is not available.)
 
 Demo data can be seeded via the scripts in `scripts/` (`seed_demo_data.py` for tenants/subscribers, `seed_demo_payments.py` for a realistic mix of successful/past-due/recovered payments).
 
