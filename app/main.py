@@ -23,7 +23,9 @@ app = FastAPI(
      title="SubFlow",
      description="Multi-tenant subscription billing engine built on Nomba's payment infrastructure",
      version="0.1.0",
-
+     docs_url=None,  # Swagger UI's "Try it out" executes real requests against production
+                     # data with no auth in front of it -- /redoc stays available as a
+                     # read-only reference with no execution capability.
 )
 
 app.add_middleware(
@@ -54,7 +56,7 @@ def root():
     return{
         "name":"SubFlow",
         "status":"running",
-        "docs": "Go to /docs to see all endpoints",
+        "docs": "Go to /redoc to see all endpoints",
     }
 
 
